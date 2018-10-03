@@ -1,5 +1,5 @@
 GEM
-  remote: http://rubygems.org/
+  remote: https://rubygems.org/
   specs:
     RedCloth (4.2.9)
     abstract (1.0.0)
@@ -36,6 +36,8 @@ GEM
     arel (2.0.10)
     bluecloth (2.2.0)
     builder (2.1.2)
+    bundle (0.0.1)
+      bundler
     capybara (1.1.2)
       mime-types (>= 1.16)
       nokogiri (>= 1.3.3)
@@ -180,6 +182,7 @@ DEPENDENCIES
   acts_as_tree_rails3
   addressable (~> 2.1)
   bluecloth (~> 2.1)
+  bundle
   capybara
   coderay (~> 0.9)
   cucumber
@@ -205,3 +208,9 @@ DEPENDENCIES
   thin
   uuidtools (~> 2.1.1)
   webrat
+
+RUBY VERSION
+   ruby 1.9.3p551
+
+BUNDLED WITH
+   1.16.2
