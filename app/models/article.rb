@@ -222,6 +222,7 @@ class Article < Content
 
     urls.uniq
   end
+  
 
   def really_send_pings(serverurl = blog.base_url, articleurl = nil)
     return unless blog.send_outbound_pings

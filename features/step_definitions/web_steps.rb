@@ -43,6 +43,25 @@ Given /^the blog is set up$/ do
                 :state => 'active'})
 end
 
+Given /^the following users exist$/ do |users|
+  users.hashes.each do |user|
+    User.create!(user)
+  end
+end
+
+Given /^the following articles exist$/ do |articles|
+  articles.hashes.each do |article|
+    Article.create!(article)
+  end
+  puts Article.all
+end
+
+Given /^the following comments exist$/ do |comments|
+  comments.hashes.each do |comment|
+    Comment.create!(comment)
+  end
+end
+
 And /^I am logged into the admin panel$/ do
   visit '/accounts/login'
   fill_in 'user_login', :with => 'admin'
@@ -54,6 +73,42 @@ And /^I am logged into the admin panel$/ do
     assert page.has_content?('Login successful')
   end
 end
+
+And /^I am logged into the non-admin panel$/ do
+  visit '/accounts/login'
+  fill_in 'user_login', :with => 'peter'
+  fill_in 'user_password', :with => '12345'
+  click_button 'Login'
+  if page.respond_to? :should
+    page.should have_content('Login successful')
+  else
+    assert page.has_content?('Login successful')
+  end 
+end
+
+Then /^I should see "([^"]*)" in table$/ do |value|
+  has_value = false
+  all("tr").each do |tr|
+    if tr.has_content?(value)
+      has_value = true
+    end
+  end
+  assert has_value
+end
+
+Then /^I should not see "([^"]*)" in table$/ do |value|
+  has_no_value = true
+  all("tr").each do |tr|
+    if tr.has_content?(value)
+      has_no_value = false
+    end
+  end
+  assert has_no_value
+end
+
+
+
+
 
 # Single-line step scoper
 When /^(.*) within (.*[^:])$/ do |step, parent|

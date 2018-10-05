@@ -113,6 +113,31 @@ class Admin::ContentController < Admin::BaseController
     render :text => nil
   end
 
+  def merge_articles
+    if params[:id] == params[:other_article_id]
+      redirect_to :action => 'edit', :id => params[:id]
+      flash[:error]=_("You can't merge the articles that have same id!")
+      return
+    end
+    @article = Article.find(params[:id])
+    other_id = params[:other_article_id]
+    begin
+      other_article = Article.find(other_id)
+      merge_bodies =@article.body + " " + other_article.body
+      @article.update_attributes(body:merge_bodies)
+      other_article.comments.each do |comment|
+        @article.comments << comment
+      end
+      other_article.delete
+      redirect_to :action => 'edit', :id => params[:id]
+      flash[:notice] = _("Article was successfully merged with #{params[:merge_with]}")
+    rescue => e
+      flash[:error]=_(e.message)
+      
+      redirect_to :action => 'edit', :id => params[:id]
+    end
+  end
+
   protected
 
   def get_fresh_or_existing_draft_for_article
@@ -182,6 +207,9 @@ class Admin::ContentController < Admin::BaseController
     @macros = TextFilter.macro_filters
     render 'new'
   end
+
+  
+
 
   def set_the_flash
     case params[:action]

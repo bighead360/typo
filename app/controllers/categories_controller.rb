@@ -1,4 +1,5 @@
 class CategoriesController < GroupingController
   # index - inherited
-  # show - inherited
+ 
+  # # show - inherited
 end

@@ -4,3 +4,14 @@
   <%= render :partial => "form" %>
 
 <% end %>
+
+
+<% if current_user.admin? && !@article.new_record? %>
+	
+	<h3>Merge Article</h3>
+	<%= form_tag("/admin/content/merge_articles/#{@article.id}",multipart: true) do %>
+		
+		<%= text_field_tag 'other_article_id',nil, placeholder: 'Enter other article id...' %>
+		<%= submit_tag "Merge" , class: 'btn' %>
+	<% end %>	
+<% end %>
