@@ -139,9 +139,7 @@ class Admin::ContentController < Admin::BaseController
       other_article.comments.each do |comment|
         @article.comments << comment
       end
-      puts "*********"
-      puts @article.body
-      puts "*********"
+
       @article.save
 
       other_article.delete
@@ -182,9 +180,10 @@ class Admin::ContentController < Admin::BaseController
 
   def new_or_edit
     if current_user.admin?
-      @valid_for_merge == true
+     
+      @valid_for_merge = true
     else
-      @valid_for_merge == false
+      @valid_for_merge = false
     end
     id = params[:id]
     id = params[:article][:id] if params[:article] && params[:article][:id]
