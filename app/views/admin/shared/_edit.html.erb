@@ -6,7 +6,7 @@
 <% end %>
 
 
-<% if current_user.admin? && !@article.new_record? %>
+<% if @valid_for_merge %>
 	
 	<h3>Merge Article</h3>
 	<%= form_tag("/admin/content/merge_articles/#{@article.id}",multipart: true) do %>

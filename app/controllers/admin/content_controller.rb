@@ -114,11 +114,22 @@ class Admin::ContentController < Admin::BaseController
   end
 
   def merge_articles
+    
+    if !current_user.admin?
+      puts "*********"
+    puts current_user.name
+    puts "*********"
+      redirect_to :action => 'edit', :id => params[:id]
+      flash[:error]=_("non-admin can't merge the articles!")
+      return
+    end
+
     if params[:id] == params[:other_article_id]
       redirect_to :action => 'edit', :id => params[:id]
       flash[:error]=_("You can't merge the articles that have same id!")
       return
     end
+
     @article = Article.find(params[:id])
     other_id = params[:other_article_id]
     begin
@@ -128,6 +139,11 @@ class Admin::ContentController < Admin::BaseController
       other_article.comments.each do |comment|
         @article.comments << comment
       end
+      puts "*********"
+      puts @article.body
+      puts "*********"
+      @article.save
+
       other_article.delete
       redirect_to :action => 'edit', :id => params[:id]
       flash[:notice] = _("Article was successfully merged with #{params[:merge_with]}")
@@ -165,6 +181,11 @@ class Admin::ContentController < Admin::BaseController
   def real_action_for(action); { 'add' => :<<, 'remove' => :delete}[action]; end
 
   def new_or_edit
+    if current_user.admin?
+      @valid_for_merge == true
+    else
+      @valid_for_merge == false
+    end
     id = params[:id]
     id = params[:article][:id] if params[:article] && params[:article][:id]
     @article = Article.get_or_build_article(id)

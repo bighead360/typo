@@ -1,4 +1,4 @@
- require 'spec_helper'
+require 'spec_helper'
 
 describe Admin::ContentController do
   render_views
@@ -670,5 +670,78 @@ describe Admin::ContentController do
       end
 
     end
+  end
+
+
+  describe 'Merge Article' do
+
+    before :each do
+
+      Factory(:blog)
+     
+      @admin = Factory(:user, :text_filter => Factory(:markdown), :profile => Factory(:profile_admin, :label => Profile::ADMIN))
+      @user1 = Factory(:user,
+            :login => 'Peter',
+            :password => 'whatever',
+            :name => 'Peter',
+            :email => 'peter@example.com',
+            :state => 'active', :profile => Factory(:profile_publisher))
+      @user2 = Factory(:user,
+            :login => 'Jerry',
+            :password => 'whatever',
+            :name => 'Jerry',
+            :email => 'jerry@example.com',
+            :state => 'active')
+
+      @article1 = Factory(:article, :user => @user1)
+      @article2 = Factory(:article, :user => @user2)
+      @comment1 = Factory(:comment, :article => @article1 )
+      @comment2 = Factory(:comment, :article => @article2 )
+    
+      
+    end
+
+
+    it "A non-admin cannot merge articles." do
+      request.session = {:user => @user1.id}
+
+      post :merge_articles, :id => @article1.id, :other_article_id => @article2.id
+      response.should redirect_to(:action => 'edit',:id => @article1.id )
+
+      expect(flash[:error]).to match(/non-admin can't merge the articles!/)
+
+    end
+    
+    it "When articles are merged, the merged article should contain the text of both previous articles" do
+        request.session = {:user => @admin.id}
+        original_content = @article1.body
+        other_content = @article2.body
+        merge_content = @article1.body + " " + @article2.body
+        post :merge_articles, :id => @article1.id, :other_article_id => @article2.id
+        assert_response :redirect, :action => 'edit'
+        article = @article1.reload
+        expect(flash[:notice]).to match(/Article was successfully merged/)
+        assert_equal merge_content, article.body
+    end
+
+    it "Comments on each of the two original articles need to all carry over and point to the new, merged article." do
+        request.session = {:user => @admin.id}
+        original_content = @article1.body
+        other_content = @article2.body
+        merge_content = @article1.body + " " + @article2.body
+        post :merge_articles, :id => @article1.id, :other_article_id => @article2.id
+        assert_response :redirect, :action => 'edit'
+        article = @article1.reload
+        assert_equal article.comments.count, 2
+    end
+
+    it "Original article is deleted." do
+        request.session = {:user => @admin.id}
+        original_content = @article1.body
+        other_content = @article2.body
+        merge_content = @article1.body + " " + @article2.body
+        expect {post :merge_articles, :id => @article1.id, :other_article_id => @article2.id}.to change(Article, :count).by(-1)   
+    end
+   
   end
 end
